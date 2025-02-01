@@ -39,7 +39,7 @@ const TransactionPage: React.FC = () => {
     const id = transaction.id;
     try {
       if (transactions.find((t) => t.id === id)) {
-        await axios.delete(`/api/transactions`);
+        await axios.delete(`/api/transactions`, { data: { id } });
         setTransactions(transactions.filter((t) => t.id !== id));
       }
     } catch (error) {

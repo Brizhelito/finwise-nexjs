@@ -282,7 +282,7 @@ const SavingGoalsPage: React.FC = () => {
 
   const handleDeleteGoal = useCallback(async (goalId: number) => {
     try {
-      await axios.delete(`/api/savingGoals/${goalId}`);
+      await axios.delete(`/api/savingGoals?id=${goalId}`);
       setGoals((prev) => prev.filter((goal) => goal.id !== goalId));
     } catch (err) {
       setError("Failed to delete goal");
