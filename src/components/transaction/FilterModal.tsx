@@ -14,7 +14,6 @@ import {
   IconButton,
   Grid,
   Typography,
-  SelectChangeEvent,
   Box,
 } from "@mui/material";
 import { TransactionFilters } from "@/models/Transaction";

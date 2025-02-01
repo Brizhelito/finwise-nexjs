@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Card,
   Typography,
@@ -84,7 +83,6 @@ const SavingGoalCard = ({
 const SavingGoalList = ({
   goals,
   onAddTransaction,
-  onDeleteGoal,
 }: SavingGoalListProps) => {
   return (
     <TransitionGroup component={null}>

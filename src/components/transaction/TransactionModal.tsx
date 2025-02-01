@@ -12,9 +12,6 @@ import {
   FormControl,
   useTheme,
   InputAdornment,
-  Box,
-  Typography,
-  SelectChangeEvent,
 } from "@mui/material";
 import { Category, Transaction } from "@prisma/client";
 import { CreateTransactionData } from "@/models/Transaction";

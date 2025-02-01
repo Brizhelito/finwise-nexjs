@@ -11,13 +11,13 @@ import {
   Slide,
 } from "@mui/material";
 import { TransitionProps } from "@mui/material/transitions";
-import { ReactElement, Ref, forwardRef } from "react";
+import { ReactElement, Ref, forwardRef } from "react"; // Import ReactNode
 import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 const Transition = forwardRef(function Transition(
   props: TransitionProps & {
-    children: ReactElement<any, any>;
+    children: ReactElement; // Use ReactElement instead of any
   },
   ref: Ref<unknown>
 ) {

@@ -7,7 +7,6 @@ import {
   Button,
   Box,
   InputAdornment,
-  useMediaQuery,
 } from "@mui/material";
 import { useState, ChangeEvent, useEffect } from "react";
 import { CreateSavingGoalData } from "@/models/SavingGoal";
@@ -38,7 +37,6 @@ const GoalDialog: React.FC<GoalDialogProps> = ({
     targetAmount: "",
     dueDate: "",
   });
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     if (open && !isEditing) {

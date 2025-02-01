@@ -1,8 +1,7 @@
 "use client";
 
-import { ReactNode } from "react";
 import { Grid, useTheme } from "@mui/material";
-import { StyledImage, SectionTitle, BodyText } from "./client-components";
+import { StyledImage, SectionTitle } from "./client-components";
 
 type ImageSectionProps = {
   reverse?: boolean;
