@@ -155,9 +155,7 @@ const SavingGoalsPage: React.FC = () => {
     processGoalData,
     processTransactionData,
   } = useSavingsData();
-  const [editingGoal, setEditingGoal] = useState<ProcessedSavingGoal | null>(
-    null
-  );
+
 
   const modal = useTransactionModal();
   const [openDialog, setOpenDialog] = useState(false);
@@ -189,7 +187,7 @@ const SavingGoalsPage: React.FC = () => {
           data as UpdateSavingTransactionData
         );
       }
-    } catch (err) {
+    } catch {
       setError(`Failed to ${modal.modalMode} transaction`);
     }
   };
@@ -292,28 +290,7 @@ const SavingGoalsPage: React.FC = () => {
     }
   }, []);
 
-  const handleEditGoal = useCallback(
-    async (goal: CreateSavingGoalData) => {
-      try {
-        if (!editingGoal) return;
 
-        const response = await axios.put<SavingGoal>(
-          `/api/savingGoals/${editingGoal.id}`,
-          goal
-        );
-
-        setGoals((prev) =>
-          prev.map((g) =>
-            g.id === editingGoal.id ? processGoalData(response.data) : g
-          )
-        );
-      } catch (err) {
-        setError("Failed to update goal");
-        console.error("Error updating goal", err);
-      }
-    },
-    [editingGoal, processGoalData]
-  );
 
   const handleDeleteSavingTransaction = async (transactionId: number) => {
     try {

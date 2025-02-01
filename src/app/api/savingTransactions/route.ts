@@ -77,8 +77,6 @@ export async function GET(request: NextRequest) {
   }
 }
 export async function PUT(request: NextRequest) {
-  const cookieStore = await cookies();
-  const userId = Number(cookieStore.get("x-user-id")?.value);
   const body = await request.json();
   console.log(body);
   // Validar campos requeridos
@@ -118,8 +116,6 @@ export async function PUT(request: NextRequest) {
 
 // Eliminar una transacción de ahorro
 export async function DELETE(request: NextRequest) {
-  const cookieStore = await cookies();
-  const userId = Number(cookieStore.get("x-user-id")?.value);
   const searchParams = request.nextUrl.searchParams;
   const transactionId = searchParams.get("id");
 

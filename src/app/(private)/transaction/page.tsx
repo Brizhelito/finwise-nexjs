@@ -73,18 +73,6 @@ const TransactionPage: React.FC = () => {
     }
   };
 
-  const handleAddTransaction = async (
-    newTransaction: CreateTransactionData
-  ) => {
-    try {
-      const response = await axios.post("/api/transactions", newTransaction);
-      setTransactions([response.data, ...transactions]);
-      setBalance(new Decimal(balance).add(response.data.amount));
-      handleCloseTransactionModal();
-    } catch (error) {
-      console.error("Error adding transaction:", error);
-    }
-  };
 
   useEffect(() => {
     const fetchTransactions = async () => {
