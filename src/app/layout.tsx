@@ -4,7 +4,6 @@ type LayoutProps = {
   children: ReactNode;
 };
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
-import Footer from "@components/Footer";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "./theme";
 import { AuthProvider } from "@/providers/AuthProvider";
