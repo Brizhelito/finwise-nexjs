@@ -1,0 +1,62 @@
+{
+  "name": "finwise-nextjs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed": "ts-node prisma/seed.ts",
+    "postinstall": "prisma generate"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^3.5.1",
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.3.0",
+    "@mui/material-nextjs": "^6.3.0",
+    "@prisma/client": "^6.3.0",
+    "axios": "^1.7.9",
+    "bcrypt": "^5.1.1",
+    "chart.js": "^4.4.7",
+    "cookie": "^1.0.2",
+    "cookies": "^0.9.1",
+    "date-fns": "^4.1.0",
+    "decimal.js": "^10.4.3",
+    "formik": "^2.4.6",
+    "jose": "^5.9.6",
+    "js-cookie": "^3.0.5",
+    "jsonwebtoken": "^9.0.2",
+    "lightweight-charts": "^4.2.3",
+    "next": "15.1.2",
+    "prisma": "^6.3.0",
+    "react": "^19.0.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^19.0.0",
+    "react-icons": "^5.4.0",
+    "recharts": "^2.15.0",
+    "sonner": "^1.7.1",
+    "yup": "^1.6.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/bcrypt": "^5.0.2",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookies": "^0.9.0",
+    "@types/js-cookie": "^3.0.6",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
+  }
+}

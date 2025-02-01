@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 Int                 @id @default(autoincrement())
+  username           String              @unique
+  password           String
+  email              String              @unique
+  first_name         String
+  last_name          String
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  budget             Budget?             @relation("UserBudget")
+  transactions       Transaction[]       @relation("UserTransaction")
+  savingTransactions SavingTransaction[] @relation("UserSavingTransaction")
+  saving             Saving?             @relation("UserSaving")
+  savingGoals        SavingGoal[]        @relation("UserSavingGoal")
+
+  @@map("users")
+}
+
+model Budget {
+  id           Int           @id @default(autoincrement())
+  balance      Decimal       @default(0.0)
+  user_id      Int           @unique
+  user         User          @relation("UserBudget", fields: [user_id], references: [id])
+  transactions Transaction[] @relation("BudgetTransaction")
+
+  @@map("budgets")
+}
+
+enum TransactionType {
+  income
+  expense
+}
+
+enum SavingType {
+  deposit
+  withdrawal
+}
+
+model Transaction {
+  id          Int             @id @default(autoincrement())
+  amount      Decimal
+  description String
+  user_id     Int
+  category_id Int?
+  budget_id   Int
+  user        User            @relation("UserTransaction", fields: [user_id], references: [id])
+  category    Category?       @relation("CategoryTransaction", fields: [category_id], references: [id])
+  budget      Budget          @relation("BudgetTransaction", fields: [budget_id], references: [id])
+  type        TransactionType
+  createdAt   DateTime        @default(now())
+
+  @@map("transactions")
+}
+
+model Saving {
+  id                 Int                 @id @default(autoincrement())
+  total_saved        Decimal
+  user_id            Int                 @unique
+  user               User                @relation("UserSaving", fields: [user_id], references: [id])
+  savingTransactions SavingTransaction[]
+
+  @@map("savings")
+}
+
+model SavingGoal {
+  id                 Int                 @id @default(autoincrement())
+  name               String
+  targetAmount       Decimal
+  user_id            Int
+  user               User                @relation("UserSavingGoal", fields: [user_id], references: [id])
+  savingTransactions SavingTransaction[]
+  currentAmount      Decimal             @default(0.0)
+  due_date           DateTime
+  createdAt          DateTime            @default(now())
+  isCompleted        Boolean             @default(false)
+  @@map("saving_goals")
+}
+
+model SavingTransaction {
+  id             Int        @id @default(autoincrement())
+  amount         Decimal
+  type           SavingType
+  user_id        Int
+  saving_id      Int
+  saving_goal_id Int
+  user           User       @relation("UserSavingTransaction", fields: [user_id], references: [id])
+  saving         Saving     @relation(fields: [saving_id], references: [id])
+  savingGoal     SavingGoal @relation(fields: [saving_goal_id], references: [id])
+  createdAt      DateTime   @default(now())
+
+  @@map("saving_transactions")
+}
+
+model Category {
+  id           Int           @id @default(autoincrement())
+  name         String        @unique
+  transactions Transaction[] @relation("CategoryTransaction")
+
+  @@map("categories")
+}
