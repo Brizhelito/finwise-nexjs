@@ -342,7 +342,18 @@ const SavingGoalsPage: React.FC = () => {
   );
 
   return (
-    <Container maxWidth="lg" disableGutters sx={containerStyles}>
+    <Container
+      maxWidth="lg"
+      disableGutters
+      sx={{
+        ...containerStyles,
+        maxWidth: "lg !important",
+        px: { xs: 0, sm: 2 }, // Eliminar padding horizontal en móvil
+        p: { xs: 0, sm: 4 }, // Ajustar padding general
+        gap: { xs: 2, sm: 4 }, // Reducir espacio entre elementos en móvil
+        marginTop: { xs: 0, sm: 4 },
+      }}
+    >
       <SavingGoalHeader
         onAddGoal={() => setOpenDialog(true)}
         totalSaving={totalSaving.toNumber()}

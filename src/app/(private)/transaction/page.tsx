@@ -136,23 +136,29 @@ const TransactionPage: React.FC = () => {
         display: "flex",
         flexDirection: "column",
         minHeight: "100vh",
-        marginTop: { xs: "56px", sm: "64px" },
+        marginTop: { xs: "0", sm: "64px" },
         [theme.breakpoints.up("md")]: {
           marginTop: "80px",
         },
         backgroundColor: "#F9FAFB",
       }}
     >
-      <Container maxWidth="lg">
+      <Container
+        maxWidth="lg"
+        sx={{
+          px: { xs: 0, sm: 2 }, // Elimina padding horizontal en móvil
+          maxWidth: "lg !important", // Fuerza el ancho máximo
+        }}
+      >
         <Paper
           elevation={6}
           sx={{
-            padding: { xs: 2, md: 4 },
-            borderRadius: "16px",
+            padding: { xs: 0, md: 4 },
+            borderRadius: { xs: 0, md: "16px" }, // Elimina bordes redondeados en móvil
             backgroundColor: "#FFFFFF",
             color: "#1E293B",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-            marginBottom: 4,
+            boxShadow: { xs: "none", md: "0 4px 6px rgba(0, 0, 0, 0.1)"},
+            marginBottom: 0, // Elimina margen inferior
             overflow: "hidden", // Evitar overflow
           }}
         >

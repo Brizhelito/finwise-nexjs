@@ -196,7 +196,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
           component="main"
           sx={{
             flexGrow: 1,
-            p: 3,
+            p: 0,
             transition: theme.transitions.create("margin", {
               easing: theme.transitions.easing.easeInOut,
               duration: 0.3,
