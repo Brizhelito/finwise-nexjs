@@ -136,10 +136,7 @@ const TransactionPage: React.FC = () => {
         display: "flex",
         flexDirection: "column",
         minHeight: "100vh",
-        marginTop: { xs: "0", sm: "64px" },
-        [theme.breakpoints.up("md")]: {
-          marginTop: "80px",
-        },
+        marginTop: 0,
         backgroundColor: "#F9FAFB",
       }}
     >

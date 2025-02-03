@@ -201,7 +201,7 @@ const Sidebar: React.FC<SidebarProps> = ({ children }) => {
               easing: theme.transitions.easing.easeInOut,
               duration: 0.3,
             }),
-            marginLeft: isMobile ? 0 : theme.spacing(7.5),
+            marginLeft: 0,
             width: isMobile ? "100%" : `calc(100% - ${theme.spacing(7.5)})`,
           }}
         >
