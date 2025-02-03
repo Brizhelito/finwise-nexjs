@@ -77,7 +77,7 @@ const SavingTransactionList: React.FC<SavingTransactionListProps> = ({
   };
 
   return (
-    <Box sx={{ marginTop: 4, paddingBottom: 4, width: "100%" }}>
+    <Box sx={{ marginTop: 4, paddingBottom: 4, width: "100%", px: 2 }}>
       <Typography
         variant="h6"
         sx={{ fontWeight: 600, color: "#1F2937", mb: 2 }}

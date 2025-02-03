@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Container, Alert, CircularProgress } from "@mui/material";
+import { Container, Alert, CircularProgress, Box } from "@mui/material";
 import { SavingGoal, SavingTransaction, SavingType } from "@prisma/client";
 import axios from "axios";
 import { Decimal } from "decimal.js";
@@ -368,7 +368,7 @@ const SavingGoalsPage: React.FC = () => {
       {isLoading ? (
         <CircularProgress sx={{ alignSelf: "center" }} />
       ) : (
-        <>
+        <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", px: { xs: 2, sm: 0 } }}>
           <GoalDialog
             open={openDialog}
             onClose={() => setOpenDialog(false)}
@@ -407,7 +407,7 @@ const SavingGoalsPage: React.FC = () => {
             savingGoalId={modal.selectedGoalId}
             transactionType={modal.savingType || undefined} // Añade esta línea
           />
-        </>
+        </Box>
       )}
     </Container>
   );

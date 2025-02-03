@@ -146,7 +146,7 @@ const TransactionPage: React.FC = () => {
       <Container
         maxWidth="lg"
         sx={{
-          px: { xs: 0, sm: 2 }, // Elimina padding horizontal en móvil
+          p: 2, // Elimina padding horizontal en móvil
           maxWidth: "lg !important", // Fuerza el ancho máximo
         }}
       >
