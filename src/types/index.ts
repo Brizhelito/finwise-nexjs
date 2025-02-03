@@ -58,7 +58,7 @@ export interface DashboardMetrics {
   savingsRate?: SavingsRate;
   topExpenseCategories?: ExpenseCategory[];
   budgetRemainingDays?: number;
-  budgetAlerts?: string[];
+  budgetAlerts?: { type: "warning" | "critical"; message: string }[] | null;
   highestTransaction?: HighestTransaction;
   expenseTrend?: ExpenseTrendItem[];
   savingsGoalProgress?: SavingsGoal[];

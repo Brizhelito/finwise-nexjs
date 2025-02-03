@@ -701,7 +701,7 @@ import {
                           color="error.main"
                           display="block"
                         >
-                          • {alert}
+                          • {alert.message.slice(0, 50)}
                         </Typography>
                       ))}
                     </Box>
