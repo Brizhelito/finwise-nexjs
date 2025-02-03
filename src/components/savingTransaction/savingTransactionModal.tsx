@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { SavingTransaction, SavingType } from "@prisma/client";
 import { Decimal } from "decimal.js";
+import { toast } from "sonner"; // Importar Sonner
 
 // Tipos
 interface ProcessedSavingGoal {
@@ -79,6 +80,7 @@ const useTransactionForm = (
 
   const [formData, setFormData] =
     useState<TransactionFormData>(initialFormData);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (mode === "edit" || mode === "view") {
@@ -90,16 +92,19 @@ const useTransactionForm = (
     } else {
       setFormData(initialFormData);
     }
+    setError(null);
   }, [mode, transaction, initialFormData]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setError(null);
   };
 
   const handleTypeChange = (e: SelectChangeEvent<SavingType>) => {
     setFormData((prev) => ({ ...prev, type: e.target.value as SavingType }));
+    setError(null);
   };
 
   const handleGoalChange = (e: SelectChangeEvent<number>) => {
@@ -107,15 +112,19 @@ const useTransactionForm = (
       ...prev,
       saving_goal_id: Number(e.target.value),
     }));
+    setError(null);
   };
 
   return {
     formData,
+    error,
+    setError,
     handleChange,
     handleTypeChange,
     handleGoalChange,
   };
 };
+
 
 const SavingTransactionModal: React.FC<SavingTransactionModalProps> = ({
   open,
@@ -127,16 +136,80 @@ const SavingTransactionModal: React.FC<SavingTransactionModalProps> = ({
   savingGoalId,
   transactionType,
 }) => {
-  const { formData, handleChange, handleTypeChange, handleGoalChange } =
-    useTransactionForm(mode, transaction, savingGoalId, transactionType);
+    const {
+      formData,
+      setError,
+      handleChange,
+      handleTypeChange,
+      handleGoalChange,
+    } = useTransactionForm(mode, transaction, savingGoalId, transactionType);
   const theme = useTheme();
 
   const handleSubmit = async () => {
     try {
+      setError(null);
+      if (!formData.amount.trim()) {
+        toast.error("El monto no puede estar vacío", {
+          description:
+            "Por favor, ingrese un monto válido para la transacción.",
+        });
+        return;
+      }
       const numericAmount = parseFloat(formData.amount);
 
-      if (isNaN(numericAmount)) {
-        throw new Error("Monto inválido");
+      if (isNaN(numericAmount) || numericAmount <= 0) {
+        toast.error("Monto inválido", {
+          description: "El monto debe ser un número positivo mayor a cero.",
+        });
+        return;
+      }
+
+      // For deposits, validate against goal's remaining amount
+      if (formData.type === SavingType.deposit) {
+        const selectedGoal = savingGoals.find(
+          (goal) => goal.id === formData.saving_goal_id
+        );
+
+        if (!selectedGoal) {
+          toast.error("Meta de ahorro no seleccionada", {
+            description:
+              "Por favor, seleccione una meta de ahorro antes de continuar.",
+          });
+          return;
+        }
+
+        const remainingToTarget = new Decimal(selectedGoal.targetAmount)
+          .minus(selectedGoal.currentAmount)
+          .toNumber();
+
+        if (numericAmount > remainingToTarget) {
+          toast.error("Monto excede el límite", {
+            description: `El monto máximo que puede depositar es $${remainingToTarget.toFixed(2)}`,
+          });
+          return;
+        }
+      }
+
+      // For withdrawals, validate against goal's current amount
+      if (formData.type === SavingType.withdrawal) {
+        const selectedGoal = savingGoals.find(
+          (goal) => goal.id === formData.saving_goal_id
+        );
+
+        if (!selectedGoal) {
+          toast.error("Meta de ahorro no seleccionada", {
+            description:
+              "Por favor, seleccione una meta de ahorro antes de continuar.",
+          });
+          return;
+        }
+
+        if (numericAmount > selectedGoal.currentAmount.toNumber()) {
+          toast.error("Monto de retiro inválido", {
+            description: `El monto máximo que puede retirar es $${selectedGoal.currentAmount.toFixed(2)}`,
+          });
+          return;
+        }
       }
 
       const transactionData = {
@@ -148,11 +221,21 @@ const SavingTransactionModal: React.FC<SavingTransactionModalProps> = ({
 
       await onSave(transactionData);
       onClose();
+      // Success toast
+      toast.success("Transacción guardada", {
+        description: "La transacción se ha registrado correctamente.",
+      });
     } catch (error) {
       console.error("Error al guardar transacción:", error);
+      toast.error("Error al guardar la transacción", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "Ocurrió un error inesperado",
+      });
     }
   };
-
+  
   const isViewMode = mode === "view";
   const modeTitles = {
     create: "Crear Transacción",
