@@ -263,7 +263,7 @@ import {
                   />
                   <Box>
                     <Typography sx={{ ...metricValueStyle }}>
-                      {data.savingsRate?.monthlySavingsRate}%
+                      {data.savingsRate?.monthlySavingsRate.toFixed(2)}%
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                       Proyección: ${data.savingsRate?.projectedYearlySavings}
