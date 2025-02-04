@@ -37,6 +37,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import NoDataDisplay from "@/components/ui/NoDataDisplay";
 import axios from "axios";
 import Link from "next/link";
   const pulse = keyframes`
@@ -205,7 +206,7 @@ import Link from "next/link";
       <Box p={isMobile ? 1 : 2} sx={{ maxWidth: 1200, mx: "auto" }}>
         <Grid container spacing={2}>
           {/* Ingreso vs Gastos */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
             <Card sx={bentoCardStyle}>
               <Box sx={cardHeaderStyle(theme.palette.success.main)}>
                 <AttachMoney sx={iconStyle(theme.palette.success.main)} />
@@ -214,7 +215,7 @@ import Link from "next/link";
                 </Typography>
               </Box>
               <CardContent sx={{ pt: 1 }}>
-                {data.incomeVsExpenses ?
+                {data.incomeVsExpenses ? (
                   <Grid container spacing={1}>
                     {[
                       {
@@ -248,19 +249,15 @@ import Link from "next/link";
                       </Grid>
                     ))}
                   </Grid>
-                  : (
-            <Box textAlign="center" py={2}>
-              <Typography variant="caption" color="text.secondary">
-                No hay datos disponibles
-              </Typography>
-            </Box>
-          )}
+                ) : (
+                  <NoDataDisplay />
+                )}
               </CardContent>
             </Card>
           </Grid>
 
           {/* Tasa de Ahorro */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
             <Card sx={bentoCardStyle}>
               <Box sx={cardHeaderStyle(theme.palette.secondary.main)}>
                 <Savings sx={iconStyle(theme.palette.secondary.main)} />
@@ -269,43 +266,39 @@ import Link from "next/link";
                 </Typography>
               </Box>
               <CardContent sx={{ pt: 1 }}>
-                {data.savingsRate ?
-                <Box display="flex" alignItems="center">
-                  <CircularProgress
-                    variant="determinate"
-                    value={data.savingsRate?.monthlySavingsRate}
-                    size={50}
-                    thickness={4}
-                    sx={{
-                      color:
-                        (data.savingsRate?.monthlySavingsRate ?? 0) >= 20
-                          ? theme.palette.success.main
-                          : theme.palette.warning.main,
-                      mr: 2,
-                    }}
-                  />
-                  <Box>
-                    <Typography sx={{ ...metricValueStyle }}>
-                      {data.savingsRate?.monthlySavingsRate.toFixed(2)}%
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Proyección: ${data.savingsRate?.projectedYearlySavings}
-                    </Typography>
+                {data.savingsRate ? (
+                  <Box display="flex" alignItems="center">
+                    <CircularProgress
+                      variant="determinate"
+                      value={data.savingsRate?.monthlySavingsRate}
+                      size={50}
+                      thickness={4}
+                      sx={{
+                        color:
+                          (data.savingsRate?.monthlySavingsRate ?? 0) >= 20
+                            ? theme.palette.success.main
+                            : theme.palette.warning.main,
+                        mr: 2,
+                      }}
+                    />
+                    <Box>
+                      <Typography sx={{ ...metricValueStyle }}>
+                        {data.savingsRate?.monthlySavingsRate.toFixed(2)}%
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Proyección: ${data.savingsRate?.projectedYearlySavings}
+                      </Typography>
+                    </Box>
                   </Box>
-                  </Box>
-                  : (
-            <Box textAlign="center" py={2}>
-              <Typography variant="caption" color="text.secondary">
-                No hay datos de ahorros
-              </Typography>
-            </Box>
-          )}
+                ) : (
+                  <NoDataDisplay />
+                )}
               </CardContent>
             </Card>
           </Grid>
 
           {/* Días Restantes */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
             <Card sx={bentoCardStyle}>
               <Box sx={cardHeaderStyle(theme.palette.warning.main)}>
                 <CalendarToday sx={iconStyle(theme.palette.warning.main)} />
@@ -331,58 +324,8 @@ import Link from "next/link";
               </CardContent>
             </Card>
           </Grid>
-
-          {/* Categorías de Gasto */}
-          <Grid item xs={12} md={6}>
-            <Card sx={bentoCardStyle}>
-              <Box sx={cardHeaderStyle(theme.palette.info.main)}>
-                <PieChart sx={iconStyle(theme.palette.info.main)} />
-                <Typography variant="subtitle1" fontWeight={600}>
-                  Gastos por Categoría
-                </Typography>
-              </Box>
-              <CardContent sx={{ pt: 1 }}>
-                {data.topExpenseCategories?.map((category, index) => (
-                  <Box key={index} mb={1.5}>
-                    <Box display="flex" justifyContent="space-between" mb={0.5}>
-                      <Typography variant="caption">
-                        {category.categoryName}
-                      </Typography>
-                      <Typography variant="caption">
-                        ${category.totalAmount}
-                      </Typography>
-                    </Box>
-                    <LinearProgress
-                      variant="determinate"
-                      value={
-                        (category.totalAmount /
-                          (data.incomeVsExpenses?.expenses || 1)) *
-                        100
-                      }
-                      sx={{
-                        height: 6,
-                        borderRadius: 2,
-                        bgcolor: alpha(theme.palette.primary.main, 0.1),
-                        "& .MuiLinearProgress-bar": {
-                          bgcolor: theme.palette.info.main,
-                          borderRadius: 2,
-                        },
-                      }}
-                    />
-                  </Box>
-                )) || (
-                  <Box textAlign="center" py={2}>
-                    <Typography variant="caption" color="text.secondary">
-                      No hay datos disponibles
-                    </Typography>
-                  </Box>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
-
           {/* Transacción más alta */}
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
             <Card sx={bentoCardStyle}>
               <Box sx={cardHeaderStyle(theme.palette.error.main)}>
                 <TrendingUp sx={iconStyle(theme.palette.error.main)} />
@@ -414,62 +357,12 @@ import Link from "next/link";
                       ).toLocaleDateString()}
                     </Typography>
                   </>
-                ) : (
-                  <Typography variant="caption" color="text.secondary">
-                    Sin transacciones
-                  </Typography>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Metas de Ahorro */}
-          <Grid item xs={12} md={3}>
-            <Card sx={bentoCardStyle}>
-              <Box sx={cardHeaderStyle(theme.palette.success.main)}>
-                <Savings sx={iconStyle(theme.palette.success.main)} />
-                <Typography variant="subtitle1" fontWeight={600}>
-                  Metas de Ahorro
-                </Typography>
-              </Box>
-              <CardContent sx={{ pt: 1 }}>
-                {data.savingsGoalProgress?.map((goal, index) => (
-                  <Box key={index} mb={2}>
-                    <Typography variant="caption">{goal.goalName}</Typography>
-                    <LinearProgress
-                      variant="determinate"
-                      value={goal.percentage}
-                      sx={{
-                        height: 6,
-                        borderRadius: 2,
-                        bgcolor: alpha(theme.palette.success.main, 0.1),
-                        "& .MuiLinearProgress-bar": {
-                          bgcolor: theme.palette.success.main,
-                          borderRadius: 2,
-                        },
-                      }}
-                    />
-                    <Box display="flex" justifyContent="space-between" mt={0.5}>
-                      <Typography variant="caption">
-                        ${goal.currentAmount}
-                      </Typography>
-                      <Typography variant="caption">
-                        ${goal.targetAmount}
-                      </Typography>
-                    </Box>
-                  </Box>
-                )) || (
-                  <Box textAlign="center" py={2}>
-                    <Typography variant="caption" color="text.secondary">
-                      No hay datos disponibles
-                    </Typography>
-                  </Box>
-                )}
+                ) : <NoDataDisplay />}
               </CardContent>
             </Card>
           </Grid>
           {/* Tendencias de Gastos */}
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={8} lg={9}>
             <Card sx={bentoCardStyle}>
               <Box sx={cardHeaderStyle(theme.palette.info.main)}>
                 <TrendingUp sx={iconStyle(theme.palette.info.main)} />
@@ -504,46 +397,130 @@ import Link from "next/link";
                     </LineChart>
                   </ResponsiveContainer>
                 ) : (
-                  <Box
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
-                    height="100%"
-                  >
-                    <Typography variant="body2" color="text.secondary">
-                      No hay datos históricos disponibles
-                    </Typography>
-                  </Box>
+                  <NoDataDisplay />
                 )}
               </CardContent>
             </Card>
           </Grid>
 
+          {/* Categorías de Gasto */}
+          <Grid item xs={12} md={4} lg={3}>
+            <Card sx={bentoCardStyle}>
+              <Box sx={cardHeaderStyle(theme.palette.info.main)}>
+                <PieChart sx={iconStyle(theme.palette.info.main)} />
+                <Typography variant="subtitle1" fontWeight={600}>
+                  Gastos por Categoría
+                </Typography>
+              </Box>
+              <CardContent sx={{ pt: 1 }}>
+                {data.topExpenseCategories ? (
+                  (data.topExpenseCategories.length > 0 &&
+                    data.topExpenseCategories.map((category, index) => (
+                      <Box key={index} mb={1.5}>
+                        <Box
+                          display="flex"
+                          justifyContent="space-between"
+                          mb={0.5}
+                        >
+                          <Typography variant="caption">
+                            {category.categoryName}
+                          </Typography>
+                          <Typography variant="caption">
+                            ${category.totalAmount}
+                          </Typography>
+                        </Box>
+                        <LinearProgress
+                          variant="determinate"
+                          value={
+                            (category.totalAmount /
+                              (data.incomeVsExpenses?.expenses || 1)) *
+                            100
+                          }
+                          sx={{
+                            height: 6,
+                            borderRadius: 2,
+                            bgcolor: alpha(theme.palette.primary.main, 0.1),
+                            "& .MuiLinearProgress-bar": {
+                              bgcolor: theme.palette.info.main,
+                              borderRadius: 2,
+                            },
+                          }}
+                        />
+                      </Box>
+                    ))) || <NoDataDisplay />
+                ) : (
+                  <NoDataDisplay />
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Metas de Ahorro */}
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <Card sx={bentoCardStyle}>
+              <Box sx={cardHeaderStyle(theme.palette.success.main)}>
+                <Savings sx={iconStyle(theme.palette.success.main)} />
+                <Typography variant="subtitle1" fontWeight={600}>
+                  Metas de Ahorro
+                </Typography>
+              </Box>
+              <CardContent sx={{ pt: 1 }}>
+                {data.savingsGoalProgress?.map((goal, index) => (
+                  <Box key={index} mb={2}>
+                    <Typography variant="caption">{goal.goalName}</Typography>
+                    <LinearProgress
+                      variant="determinate"
+                      value={goal.percentage}
+                      sx={{
+                        height: 6,
+                        borderRadius: 2,
+                        bgcolor: alpha(theme.palette.success.main, 0.1),
+                        "& .MuiLinearProgress-bar": {
+                          bgcolor: theme.palette.success.main,
+                          borderRadius: 2,
+                        },
+                      }}
+                    />
+                    <Box display="flex" justifyContent="space-between" mt={0.5}>
+                      <Typography variant="caption">
+                        ${goal.currentAmount}
+                      </Typography>
+                      <Typography variant="caption">
+                        ${goal.targetAmount}
+                      </Typography>
+                    </Box>
+                  </Box>
+                )) || <NoDataDisplay />}
+              </CardContent>
+            </Card>
+          </Grid>
+
           {/* Categoría con Mayor Crecimiento */}
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={bentoCardStyle}>
-                <Box sx={cardHeaderStyle(theme.palette.success.main)}>
-                  <EmojiEvents sx={iconStyle(theme.palette.success.main)} />
-                  <Typography variant="subtitle1" fontWeight={600}>
-                    Categoría Destacada
-                  </Typography>
-                </Box>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <Card sx={bentoCardStyle}>
+              <Box sx={cardHeaderStyle(theme.palette.success.main)}>
+                <EmojiEvents sx={iconStyle(theme.palette.success.main)} />
+                <Typography variant="subtitle1" fontWeight={600}>
+                  Categoría Destacada
+                </Typography>
+              </Box>
               <CardContent>
                 {data.highestGrowthCategory ? (
                   <>
                     <Typography
-                    sx={{
-                      ...metricValueStyle,
-                      color: theme.palette.success.main,
-                      mb: 1,
-                    }}
-                  >
-                    {data.highestGrowthCategory.categoryName}
-                  </Typography><Box
-                    bgcolor={alpha(theme.palette.success.main, 0.1)}
-                    p={1}
-                    borderRadius={2}
-                  >
+                      sx={{
+                        ...metricValueStyle,
+                        color: theme.palette.success.main,
+                        mb: 1,
+                      }}
+                    >
+                      {data.highestGrowthCategory.categoryName}
+                    </Typography>
+                    <Box
+                      bgcolor={alpha(theme.palette.success.main, 0.1)}
+                      p={1}
+                      borderRadius={2}
+                    >
                       <Typography
                         variant="caption"
                         display="block"
@@ -568,21 +545,17 @@ import Link from "next/link";
                         Mes actual: $
                         {data.highestGrowthCategory.currentMonthTotal}
                       </Typography>
-                    </Box></>
+                    </Box>
+                  </>
                 ) : (
-                    <Box textAlign="center" py={2}>
-                      <Typography variant="caption" color="text.secondary">
-                        No hay datos disponibles
-                      </Typography>
-                  </Box>
+                  <NoDataDisplay />
                 )}
-                </CardContent>
-              </Card>
-            </Grid>
-          
+              </CardContent>
+            </Card>
+          </Grid>
 
           {/* Tendencias por Categoría */}
-          <Grid item xs={12} md={3}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
             <Card sx={bentoCardStyle}>
               <Box sx={cardHeaderStyle(theme.palette.warning.main)}>
                 <PieChart sx={iconStyle(theme.palette.warning.main)} />
@@ -591,148 +564,148 @@ import Link from "next/link";
                 </Typography>
               </Box>
               <CardContent>
-                {data.categoryTrends ? data.categoryTrends.length > 0 ? data.categoryTrends.map((trend, index) => (
-                  <Box
-                    key={index}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      mb: 2,
-                      p: 1.5,
-                      borderRadius: 2,
-                      bgcolor: alpha(
-                        trend.trend === "upward"
-                          ? theme.palette.success.main
-                          : trend.trend === "downward"
-                            ? theme.palette.error.main
-                            : theme.palette.grey[500],
-                        0.1
-                      ),
-                    }}
-                  >
-                    {trend.trend === "upward" ? (
-                      <ArrowUpward
+                {data.categoryTrends ? (
+                  data.categoryTrends.length > 0 ? (
+                    data.categoryTrends.map((trend, index) => (
+                      <Box
+                        key={index}
                         sx={{
-                          color: theme.palette.success.main,
-                          mr: 1.5,
+                          display: "flex",
+                          alignItems: "center",
+                          mb: 2,
+                          p: 1.5,
+                          borderRadius: 2,
+                          bgcolor: alpha(
+                            trend.trend === "upward"
+                              ? theme.palette.success.main
+                              : trend.trend === "downward"
+                                ? theme.palette.error.main
+                                : theme.palette.grey[500],
+                            0.1
+                          ),
                         }}
-                      />
-                    ) : trend.trend === "downward" ? (
-                      <ArrowDownward
-                        sx={{
-                          color: theme.palette.error.main,
-                          mr: 1.5,
-                        }}
-                      />
-                    ) : (
-                      <Remove
-                        sx={{
-                          color: theme.palette.grey[500],
-                          mr: 1.5,
-                        }}
-                      />
-                    )}
+                      >
+                        {trend.trend === "upward" ? (
+                          <ArrowUpward
+                            sx={{
+                              color: theme.palette.success.main,
+                              mr: 1.5,
+                            }}
+                          />
+                        ) : trend.trend === "downward" ? (
+                          <ArrowDownward
+                            sx={{
+                              color: theme.palette.error.main,
+                              mr: 1.5,
+                            }}
+                          />
+                        ) : (
+                          <Remove
+                            sx={{
+                              color: theme.palette.grey[500],
+                              mr: 1.5,
+                            }}
+                          />
+                        )}
 
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Typography variant="body2">
-                        {trend.categoryName}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {trend.trend === "stable"
-                          ? "Sin cambios"
-                          : `${Math.abs(trend.percentageChange)}%`}
-                      </Typography>
-                    </Box>
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Typography variant="body2">
+                            {trend.categoryName}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {trend.trend === "stable"
+                              ? "Sin cambios"
+                              : `${Math.abs(trend.percentageChange)}%`}
+                          </Typography>
+                        </Box>
 
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontWeight: 700,
-                        color:
-                          trend.trend === "upward"
-                            ? theme.palette.success.main
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 700,
+                            color:
+                              trend.trend === "upward"
+                                ? theme.palette.success.main
+                                : trend.trend === "downward"
+                                  ? theme.palette.error.main
+                                  : theme.palette.grey[500],
+                          }}
+                        >
+                          {trend.trend === "upward"
+                            ? "+"
                             : trend.trend === "downward"
-                              ? theme.palette.error.main
-                              : theme.palette.grey[500],
-                      }}
-                    >
-                      {trend.trend === "upward"
-                        ? "+"
-                        : trend.trend === "downward"
-                          ? "-"
-                          : ""}
-                      {trend.percentageChange}%
-                    </Typography>
-                  </Box>
-                )) : (
-                  <Box textAlign="center" py={2}>
-                    <Typography variant="caption" color="text.secondary">
-                      No hay datos disponibles
-                    </Typography>
-                  </Box>
+                              ? "-"
+                              : ""}
+                          {trend.percentageChange}%
+                        </Typography>
+                      </Box>
+                    ))
+                  ) : (
+                    <NoDataDisplay />
+                  )
                 ) : (
-                  <Box textAlign="center" py={2}>
-                    <Typography variant="caption" color="text.secondary">
-                      No hay datos disponibles
-                    </Typography>
-                  </Box>
+                  <NoDataDisplay />
                 )}
               </CardContent>
             </Card>
           </Grid>
 
           {/* Récord de Días sin Gastos */}
-          {data.longestExpenseFreeStreak && (
-            <Grid item xs={12} sm={6} md={3}>
-              <Card sx={bentoCardStyle}>
-                <Box sx={cardHeaderStyle(theme.palette.secondary.main)}>
-                  <CalendarToday sx={iconStyle(theme.palette.secondary.main)} />
-                  <Typography variant="subtitle1" fontWeight={600}>
-                    Récord sin Gastos
-                  </Typography>
-                </Box>
-                <CardContent sx={{ textAlign: "center" }}>
-                  <Typography
-                    variant="h3"
-                    sx={{
-                      color: theme.palette.secondary.main,
-                      fontWeight: 900,
-                      fontSize: isMobile ? "2.5rem" : "3rem",
-                      lineHeight: 1,
-                      mb: 1,
-                    }}
-                  >
-                    {data.longestExpenseFreeStreak.daysWithoutExpenses}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    display="block"
-                  >
-                    {new Date(
-                      data.longestExpenseFreeStreak.startDate
-                    ).toLocaleDateString()}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    display="block"
-                  >
-                    hasta
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    display="block"
-                  >
-                    {new Date(
-                      data.longestExpenseFreeStreak.endDate
-                    ).toLocaleDateString()}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          )}
+          <Grid item xs={12} sm={6} md={4} lg={3}>
+            <Card sx={bentoCardStyle}>
+              <Box sx={cardHeaderStyle(theme.palette.secondary.main)}>
+                <CalendarToday sx={iconStyle(theme.palette.secondary.main)} />
+                <Typography variant="subtitle1" fontWeight={600}>
+                  Récord sin Gastos
+                </Typography>
+              </Box>
+              <CardContent sx={{ textAlign: "center" }}>
+                {data.longestExpenseFreeStreak ? (
+                  <>
+                    <Typography
+                      variant="h3"
+                      sx={{
+                        color: theme.palette.secondary.main,
+                        fontWeight: 900,
+                        fontSize: isMobile ? "2.5rem" : "3rem",
+                        lineHeight: 1,
+                        mb: 1,
+                      }}
+                    >
+                      {data.longestExpenseFreeStreak.daysWithoutExpenses}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      display="block"
+                    >
+                      {new Date(
+                        data.longestExpenseFreeStreak.startDate
+                      ).toLocaleDateString()}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      display="block"
+                    >
+                      hasta
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      display="block"
+                    >
+                      {new Date(
+                        data.longestExpenseFreeStreak.endDate
+                      ).toLocaleDateString()}
+                    </Typography>
+                  </>
+                ) : (
+                  <NoDataDisplay />
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
           {/* Alertas del Presupuesto */}
           {data.budgetAlerts && data.budgetAlerts.length > 0 && (
             <Grid item xs={12}>
