@@ -47,7 +47,9 @@ const TransactionPage: React.FC = () => {
     }
   };
   const handleOpenTransactionModal = () => setIsTransactionModalOpen(true);
-  const handleCloseTransactionModal = () => setIsTransactionModalOpen(false);
+  const handleCloseTransactionModal = () => {
+    setSelectedTransaction(null);
+     setIsTransactionModalOpen(false); }
 
   const handleOpenFilterModal = () => setIsFilterModalOpen(true);
   const handleCloseFilterModal = () => setIsFilterModalOpen(false);
@@ -93,18 +95,20 @@ const TransactionPage: React.FC = () => {
         console.error("Error al obtener categorías:", error);
       }
     };
-    const fetchBalance = async () => {
-      try {
-        const response = await axios.get("/api/balance");
-        setBalance(response.data.balance);
-      } catch (error) {
-        console.error("Error fetching balance:", error);
-      }
-    };
-    fetchBalance();
     fetchCategories();
     fetchTransactions();
   }, [filters]);
+  useEffect(() => {
+        const fetchBalance = async () => {
+          try {
+            const response = await axios.get("/api/balance");
+            setBalance(new Decimal(response.data.balance));
+          } catch (error) {
+            console.error("Error fetching balance:", error);
+          }
+        };
+        fetchBalance();
+  }, [transactions]);
   useEffect(() => {
     const fetchTransactionMetrics = async () => {
       try {
@@ -318,6 +322,7 @@ const TransactionPage: React.FC = () => {
               onSubmit={handleSubmitTransaction}
               categories={categories}
               transactionToEdit={selectedTransaction ?? undefined}
+              balance={balance}
             />
 
             <FilterModal

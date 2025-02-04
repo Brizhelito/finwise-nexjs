@@ -137,29 +137,77 @@ export default class Transaction {
     return prisma.transaction.findUnique({ where: { id } });
   }
 
-  static async delete(id: number) {
-    const transaction = await Transaction.findTransactionById(id);
+  static async delete(id: number, userId: number) {
+    console.log(`🔍 Buscando transacción con ID: ${id}`);
+
+    const transaction = await prisma.transaction.findUnique({
+      where: { id },
+    });
+
     if (!transaction) {
+      console.error(`❌ Error: No se encontró la transacción con ID: ${id}`);
       throw new Error("Transaction not found.");
     }
 
-    const amount = new Decimal(transaction.amount);
-
-    // Iniciar una transacción de Prisma
-    const deletedTransaction = await prisma.$transaction(async (prisma) => {
-      // Actualizar el balance del presupuesto
-      await Transaction.updateBudgetBalance(
-        transaction.budget_id,
-        amount,
-        transaction.type
+    // Asegurar que la transacción pertenece al usuario
+    if (transaction.user_id !== userId) {
+      console.error(
+        `⚠️ Error: Usuario ${userId} no tiene permiso para borrar la transacción ${id}`
       );
+      throw new Error("Unauthorized: Transaction does not belong to user.");
+    }
 
-      // Eliminar la transacción
-      return prisma.transaction.delete({ where: { id } });
-    });
+    console.log(`✅ Transacción encontrada: `, transaction);
 
-    return deletedTransaction;
+    const amount = new Decimal(transaction.amount);
+    console.log(`💰 Monto de la transacción: ${amount.toString()}`);
+
+    try {
+      // Iniciar una transacción de Prisma
+      const deletedTransaction = await prisma.$transaction(async (prisma) => {
+        console.log(
+          `🔄 Obteniendo el presupuesto asociado al usuario ${userId}`
+        );
+
+        const budgetId = transaction.budget_id;
+        if (!budgetId) {
+          console.error(
+            `❌ Error: No se encontró un presupuesto asociado a la transacción.`
+          );
+          throw new Error("Budget not found.");
+        }
+
+        console.log(`📊 Actualizando balance del presupuesto ID: ${budgetId}`);
+
+        if (transaction.type === "income") {
+          console.log(
+            `🔄 Revirtiendo ingreso: Restando ${amount.toString()} del balance`
+          );
+          await Transaction.updateBudgetBalance(
+            budgetId,
+            amount,
+            "expense"
+          );
+        } else {
+          console.log(
+            `🔄 Revirtiendo gasto: Sumando ${amount.toString()} al balance`
+          );
+          await Transaction.updateBudgetBalance(budgetId, amount, "income");
+        }
+
+        console.log(`🗑️ Eliminando transacción con ID: ${id}`);
+
+        return prisma.transaction.delete({ where: { id } });
+      });
+
+      console.log(`✅ Transacción eliminada exitosamente.`);
+      return deletedTransaction;
+    } catch (error) {
+      console.error(`❌ Error al eliminar la transacción:`, error);
+      throw new Error("Failed to delete transaction.");
+    }
   }
+
   static async getFilteredTransactions(filters: TransactionFilters) {
     const {
       startDate,

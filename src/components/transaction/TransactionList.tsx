@@ -120,7 +120,7 @@ const TransactionList: React.FC<TransactionListProps> = ({
                   color="error"
                 />
               )}
-              {transaction.description}
+              {transaction.description || "Sin descripción"}
             </Typography>
           </Grid>
 

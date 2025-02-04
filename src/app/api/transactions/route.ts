@@ -68,7 +68,10 @@ export async function PUT(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const data = await req.json();
-    await Transaction.delete(data.id);
+      const cookieStore = await cookies();
+      const userId = Number(cookieStore.get("x-user-id")?.value);
+
+    await Transaction.delete(data.id, userId);
     return NextResponse.json({ message: "Transaction deleted." });
   } catch (error) {
     return NextResponse.json(

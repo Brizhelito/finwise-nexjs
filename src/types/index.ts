@@ -62,7 +62,7 @@ export interface DashboardMetrics {
   highestTransaction?: HighestTransaction;
   expenseTrend?: ExpenseTrendItem[];
   savingsGoalProgress?: SavingsGoal[];
-  categoryTrends?: CategoryTrend[];
+  categoryTrends?: CategoryTrend[] | null;
   highestGrowthCategory?: GrowthCategory | null;
   longestExpenseFreeStreak?: ExpenseFreeStreak | null;
 }

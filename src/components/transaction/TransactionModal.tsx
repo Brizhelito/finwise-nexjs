@@ -16,13 +16,16 @@ import {
 import { Category, Transaction } from "@prisma/client";
 import { CreateTransactionData } from "@/models/Transaction";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { toast } from "sonner";
+import Decimal from "decimal.js";
 
 interface TransactionModalProps {
   open: boolean;
   handleClose: () => void;
   onSubmit: (transaction: CreateTransactionData | Transaction) => void;
   categories: Category[];
-  transactionToEdit?: Transaction; // Nuevo prop para edición
+  transactionToEdit?: Transaction;
+  balance: Decimal;
 }
 
 const TransactionModal: React.FC<TransactionModalProps> = ({
@@ -31,14 +34,18 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
   onSubmit,
   categories,
   transactionToEdit,
+  balance,
 }) => {
   const theme = useTheme();
   const [amount, setAmount] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [type, setType] = useState<"income" | "expense">("income");
   const [category, setCategory] = useState<number | "">("");
+  const [amountError, setAmountError] = useState<string | null>(null);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
+
   useEffect(() => {
-    if (transactionToEdit && transactionToEdit.id) {
+    if (transactionToEdit) {
       setAmount(transactionToEdit.amount.toString());
       setDescription(transactionToEdit.description);
       setType(transactionToEdit.type);
@@ -47,20 +54,91 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
       resetForm();
     }
   }, [transactionToEdit, open]);
+
+  const validateAmount = (
+    value: string,
+    balance: Decimal,
+    transactionToEdit?: Transaction
+  ): boolean => {
+    const trimmedValue = value.trim();
+
+    if (!trimmedValue) {
+      setAmountError("El monto no puede estar vacío");
+      return false;
+    }
+
+    const numAmount = parseFloat(trimmedValue);
+
+    if (isNaN(numAmount) || numAmount <= 0) {
+      setAmountError("El monto debe ser un número válido mayor que cero");
+      return false;
+    }
+
+    if (!/^\d+(\.\d{1,2})?$/.test(trimmedValue)) {
+      setAmountError("El monto debe tener máximo 2 decimales");
+      return false;
+    }
+
+    if (transactionToEdit?.type === "expense") {
+      const adjustedBalance =
+        balance.toNumber() + Number(transactionToEdit.amount);
+      if (numAmount > adjustedBalance) {
+        setAmountError("El monto excede el balance disponible");
+        return false;
+      }
+    }
+    if (type === "expense" && numAmount > balance.toNumber()) {
+      setAmountError("El monto excede el balance disponible");
+      return false;
+    }
+    setAmountError(null);
+    return true;
+  };
+
+  const validateCategory = (): boolean => {
+    if (type === "expense" && category === "") {
+      setCategoryError("Debes seleccionar una categoría para gastos");
+      return false;
+    }
+
+    setCategoryError(null);
+    return true;
+  };
+
+  const validateForm = (): boolean => {
+    const isValidAmount = validateAmount(amount, balance, transactionToEdit);
+    const isValidCategory = validateCategory();
+    return isValidAmount && isValidCategory;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const transactionData = {
-      ...(transactionToEdit && { id: transactionToEdit.id }), // Incluir ID si existe
-      amount: parseFloat(amount),
-      description,
-      type,
-      category_id: type === "expense" ? (category as number) : undefined,
-    };
-    console.log("Transaccion del modal", transactionData);
-    onSubmit(transactionData);
-    resetForm();
-    handleClose();
+    if (!validateForm()) {
+      toast.error("Por favor, corrige los errores en el formulario");
+      return;
+    }
+
+    try {
+      const transactionData = {
+        ...(transactionToEdit && { id: transactionToEdit.id }),
+        amount: parseFloat(amount),
+        description: description.trim(),
+        type,
+        category_id: type === "expense" ? (category as number) : undefined,
+      };
+
+      toast.success(
+        transactionToEdit ? "Transacción actualizada" : "Transacción creada"
+      );
+
+      onSubmit(transactionData);
+      resetForm();
+      handleClose();
+    } catch (error) {
+      console.error("Error al procesar la transacción:", error);
+      toast.error("Ocurrió un error al procesar la transacción");
+    }
   };
 
   const resetForm = () => {
@@ -68,6 +146,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
     setDescription("");
     setType("income");
     setCategory("");
+    setAmountError(null);
+    setCategoryError(null);
   };
 
   const handleCloseModal = () => {
@@ -225,15 +305,23 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
             label="Monto"
             variant="outlined"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={(e) => {
+              setAmount(e.target.value);
+              validateAmount(e.target.value, balance, transactionToEdit);
+            }}
             fullWidth
-            type="number"
             required
+            error={!!amountError}
+            helperText={amountError}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">$</InputAdornment>
               ),
-              inputProps: { min: 0 },
+              inputProps: {
+                step: "0.01",
+                min: 0,
+                pattern: "^\\d+(\\.\\d{1,2})?$",
+              },
             }}
             sx={styles.textField}
           />
@@ -253,7 +341,11 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
             <InputLabel>Tipo</InputLabel>
             <Select
               value={type}
-              onChange={(e) => setType(e.target.value as "income" | "expense")}
+              onChange={(e) => {
+                setType(e.target.value as "income" | "expense");
+                setCategory("");
+                validateCategory();
+              }}
               label="Tipo"
               sx={styles.select}
             >
@@ -263,11 +355,19 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
           </FormControl>
 
           {type === "expense" && (
-            <FormControl fullWidth sx={styles.textField} margin="normal">
+            <FormControl
+              fullWidth
+              sx={styles.textField}
+              margin="normal"
+              error={!!categoryError}
+            >
               <InputLabel>Categoría</InputLabel>
               <Select
                 value={category}
-                onChange={(e) => setCategory(Number(e.target.value))}
+                onChange={(e) => {
+                  setCategory(Number(e.target.value));
+                  validateCategory();
+                }}
                 label="Categoría"
                 sx={styles.select}
                 required
@@ -278,6 +378,18 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
                   </MenuItem>
                 ))}
               </Select>
+              {categoryError && (
+                <div
+                  style={{
+                    color: theme.palette.error.main,
+                    fontSize: "0.75rem",
+                    marginLeft: "14px",
+                    marginTop: "4px",
+                  }}
+                >
+                  {categoryError}
+                </div>
+              )}
             </FormControl>
           )}
         </form>
@@ -302,5 +414,4 @@ const TransactionModal: React.FC<TransactionModalProps> = ({
     </Dialog>
   );
 };
-
 export default TransactionModal;
