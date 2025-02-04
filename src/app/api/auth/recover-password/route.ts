@@ -9,6 +9,9 @@ export async function POST(req: NextRequest) {
     const response = await UserService.sendPasswordRecoveryEmail(email);
     return NextResponse.json(response);
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json(
+      { error: (error as Error).message },
+      { status: 400 }
+    );
   }
 }
