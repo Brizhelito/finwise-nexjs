@@ -8,6 +8,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import theme from "./theme";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { Toaster } from "sonner";
+import { UserProvider } from "@/context/UserContext";
 const Layout = ({ children }: LayoutProps) => {
   return (
     <html lang="en">
@@ -17,13 +18,15 @@ const Layout = ({ children }: LayoutProps) => {
         <title>FinWise</title>
       </head>
       <body>
-        <AuthProvider>
-          <AppRouterCacheProvider>
-            <ThemeProvider theme={theme}>{children}</ThemeProvider>
-            <Toaster richColors position="bottom-right" />
-            {/* Asegúrate de agregar este componente aquí */}
-          </AppRouterCacheProvider>
-        </AuthProvider>
+        <UserProvider>
+          <AuthProvider>
+            <AppRouterCacheProvider>
+              <ThemeProvider theme={theme}>{children}</ThemeProvider>
+              <Toaster richColors position="bottom-right" />
+              {/* Asegúrate de agregar este componente aquí */}
+            </AppRouterCacheProvider>
+          </AuthProvider>
+        </UserProvider>
       </body>
     </html>
   );

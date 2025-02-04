@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import axios, { AxiosError } from "axios";
 import { toast } from "sonner"; // Importar Sonner
-
+import { useUser } from "@/context/UserContext";
 export interface AuthContextProps {
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -25,7 +25,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true); // Nuevo estado para manejar la carga
-
+  const { login: userLogin, logout : userLogout } = useUser();
   // Verificar si el usuario ya está autenticado al cargar la página
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -50,12 +50,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true); // Inicia el estado de carga
-      await axios.post(
+      const response = await axios.post(
         "/api/auth/login",
         { email, password },
         { withCredentials: true } // Habilita el uso de cookies
       );
       setIsAuthenticated(true);
+      userLogin(response.data.user);
       toast.success("¡Inicio de sesión exitoso!"); // Muestra notificación de éxito
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
@@ -75,6 +76,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       setIsLoading(true); // Inicia el estado de carga
       await axios.post("/api/auth/logout", {}, { withCredentials: true });
       setIsAuthenticated(false);
+      userLogout();
       toast.success("¡Sesión cerrada correctamente!"); // Muestra notificación de éxito
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
