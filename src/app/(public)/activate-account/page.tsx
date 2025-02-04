@@ -54,12 +54,12 @@ const ValidateEmail = () => {
         await axios.post("/api/auth/activate-account", { token });
         setTokenValid(true);
         toast.success("Cuenta activada correctamente");
-      } catch (error: any) {
+      } catch (error) {
         setTokenValid(false);
         setErrorMessage(
-          error.response?.data?.error || "El enlace ha expirado o es inválido"
+          (error as Error).message || "El enlace ha expirado o es inválido"
         );
-        toast.error(error.response?.data?.error || "Error de validación");
+        toast.error((error as Error).message || "Error de validación");
       } finally {
         setLoading(false);
       }
@@ -72,8 +72,8 @@ const ValidateEmail = () => {
     try {
       await axios.post("/api/auth/resend-verification", { token });
       toast.success("Nuevo enlace de verificación enviado");
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Error al reenviar el enlace");
+    } catch (error) {
+      toast.error((error as Error).message || "Error al reenviar el enlace");
     }
   };
 
@@ -96,10 +96,7 @@ const ValidateEmail = () => {
     return (
       <Fade in={true} timeout={500}>
         <Container maxWidth="sm" sx={{ mt: 8 }}>
-          <Paper
-            elevation={3}
-            sx={{ p: 4, borderRadius: 3, textAlign: "center" }}
-          >
+          <Paper elevation={3} sx={{ p: 4, borderRadius: 3, textAlign: "center" }}>
             <ErrorOutlineIcon
               sx={{ fontSize: 80, color: theme.palette.error.main, mb: 2 }}
             />
@@ -143,10 +140,7 @@ const ValidateEmail = () => {
   return (
     <Fade in={true} timeout={500}>
       <Container maxWidth="sm" sx={{ mt: 8 }}>
-        <Paper
-          elevation={3}
-          sx={{ p: 4, borderRadius: 3, textAlign: "center" }}
-        >
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 3, textAlign: "center" }}>
           <AnimatedCheckIcon />
           <Typography variant="h3" gutterBottom sx={{ mt: 2, fontWeight: 700 }}>
             ¡Validación exitosa!
@@ -155,8 +149,7 @@ const ValidateEmail = () => {
             Tu dirección de correo electrónico ha sido confirmada correctamente.
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-            Ahora puedes disfrutar de todas las funcionalidades de nuestra
-            plataforma.
+            Ahora puedes disfrutar de todas las funcionalidades de nuestra plataforma.
           </Typography>
 
           <Button

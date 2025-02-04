@@ -42,9 +42,9 @@ const RecoverPassword = () => {
       await axios.post("/api/auth/recover-password", { email });
       toast.success("Instrucciones enviadas correctamente");
       setSuccess(true);
-    } catch (error: any) {
+    } catch (error) {
       toast.error(
-        error.response?.data?.error || "Error al enviar las instrucciones"
+        (error as Error).message || "Error al enviar las instrucciones"
       );
     } finally {
       setLoading(false);

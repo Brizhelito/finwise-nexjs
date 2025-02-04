@@ -38,10 +38,10 @@ const ResetPassword = () => {
       try {
         await axios.post("/api/auth/verify-token", { token });
         setTokenValid(true);
-      } catch (error: any) {
+      } catch (error) {
         setTokenValid(false);
         setErrorMessage(
-          error.response?.data?.error || "El enlace ha expirado o es inválido"
+          (error as Error).message || "El enlace ha expirado o es inválido"
         );
       }
     };
@@ -70,9 +70,9 @@ const ResetPassword = () => {
       });
       toast.success("Contraseña actualizada correctamente");
       router.push("/login");
-    } catch (error: any) {
+    } catch (error) {
       toast.error(
-        error.response?.data?.error || "Error al actualizar la contraseña"
+        (error as Error).message || "Error al actualizar la contraseña"
       );
     } finally {
       setLoading(false);
