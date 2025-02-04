@@ -225,7 +225,7 @@ const Navbar = ({ children }: NavbarProps) => {
         </Toolbar>
       </GradientAppBar>
 
-      <Box component="main" sx={{ overflowX: "hidden" }}>
+      <Box component="main" sx={{ overflowX: "hidden", minHeight: "81vh" }}>
         {children}
       </Box>
 

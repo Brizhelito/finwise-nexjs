@@ -56,6 +56,8 @@ const Login = () => {
         loading: false,
         error: error instanceof Error ? error.message : "Error desconocido",
       });
+    } finally {
+      setStatus({ loading: false, error: null });
     }
   };
 

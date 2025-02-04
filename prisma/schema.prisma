@@ -14,6 +14,7 @@ model User {
   email              String              @unique
   first_name         String
   last_name          String
+  activated   Boolean             @default(false)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   budget             Budget?             @relation("UserBudget")
@@ -21,7 +22,8 @@ model User {
   savingTransactions SavingTransaction[] @relation("UserSavingTransaction")
   saving             Saving?             @relation("UserSaving")
   savingGoals        SavingGoal[]        @relation("UserSavingGoal")
-
+  passwordRecoveries  PasswordRecovery[] // Relación inversa con PasswordRecovery
+  accountActivations   AccountActivation[]
   @@map("users")
 }
 
@@ -112,6 +114,16 @@ model PasswordRecovery {
   token     String   @unique
   userId    Int
   expiresAt DateTime
+  used      Boolean  @default(false)
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
+}
+model AccountActivation {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }

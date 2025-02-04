@@ -16,7 +16,7 @@ export const login = async (req: NextRequest) => {
       );
     }
 
-    const response = await loginUser({ emailOrUsername: email, password });
+    const response = await loginUser({ emailOrUsername: email.toLowerCase(), password });
     return response;
   } catch (error) {
     return NextResponse.json(
@@ -39,8 +39,8 @@ export const register = async (req: NextRequest) => {
     }
 
     const response = await registerUser({
-      email,
-      username,
+      email : email.toLowerCase(),
+      username : username.toLowerCase(),
       password,
       first_name,
       last_name,
