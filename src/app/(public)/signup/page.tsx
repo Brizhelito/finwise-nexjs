@@ -2,7 +2,6 @@
 import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   TextField,
@@ -14,9 +13,11 @@ import {
   Box,
   CircularProgress,
   styled,
+  Alert,
 } from "@mui/material";
 import axios, { AxiosError } from "axios";
 import { toast } from "sonner";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 interface FormValues {
   username: string;
@@ -57,9 +58,10 @@ const PasswordHint = () => (
 );
 
 const SignUp = () => {
-  const router = useRouter();
   const [loading, setLoading] = React.useState(false);
   const [passwordFocused, setPasswordFocused] = React.useState(false);
+  const [showConfirmation, setShowConfirmation] = React.useState(false);
+  const [emailSent, setEmailSent] = React.useState("");
 
   const formik = useFormik<FormValues>({
     initialValues: {
@@ -74,8 +76,9 @@ const SignUp = () => {
       setLoading(true);
       try {
         await axios.post("/api/auth/signup", values);
+        setEmailSent(values.email);
+        setShowConfirmation(true);
         toast.success("Registro exitoso. Redirigiendo...");
-        setTimeout(() => router.push("/login"), 1500);
       } catch (error) {
         const err = error as AxiosError<{ error: string }>;
         toast.error(err.response?.data?.error || "Error en registro");
@@ -84,6 +87,75 @@ const SignUp = () => {
       }
     },
   });
+const handleResendEmail = async () => {
+  try {
+    setLoading(true);
+    await axios.post("/api/auth/resend-verification", { email: emailSent });
+    toast.success("Correo reenviado exitosamente");
+  } catch (error) {
+    const err = error as AxiosError<{ error: string }>;
+    toast.error(err.response?.data?.error || "Error al reenviar correo");
+  } finally {
+    setLoading(false);
+  }
+};
+if (showConfirmation) {
+  return (
+    <Container component="main" maxWidth="xs" sx={{ py: 6 }}>
+      <CompactPaper>
+        <Box textAlign="center" mb={3}>
+          <CheckCircleOutlineIcon
+            color="success"
+            sx={{ fontSize: 60, mb: 2 }}
+          />
+          <Typography
+            variant="h5"
+            component="h1"
+            gutterBottom
+            sx={{ fontWeight: 600 }}
+          >
+            ¡Cuenta creada exitosamente!
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            Hemos enviado un correo de activación a:
+          </Typography>
+          <Typography variant="body1" sx={{ fontWeight: 500, mb: 3 }}>
+            {emailSent}
+          </Typography>
+
+          <Alert severity="info" sx={{ mb: 3 }}>
+            Revisa tu bandeja de entrada y la carpeta de spam
+          </Alert>
+
+          <Button
+            variant="contained"
+            onClick={handleResendEmail}
+            disabled={loading}
+            sx={{ mb: 2 }}
+          >
+            {loading ? <CircularProgress size={20} /> : "Reenviar correo"}
+          </Button>
+
+          <Box mt={3}>
+            <Typography variant="body2" color="text.secondary">
+              ¿Ya activaste tu cuenta?{" "}
+              <Link
+                href="/login"
+                style={{
+                  color: "#1976d2",
+                  textDecoration: "none",
+                  fontWeight: 500,
+                }}
+              >
+                Iniciar sesión
+              </Link>
+            </Typography>
+          </Box>
+        </Box>
+      </CompactPaper>
+    </Container>
+  );
+}
 
   return (
     <Container component="main" maxWidth="xs" sx={{ py: 6 }}>
