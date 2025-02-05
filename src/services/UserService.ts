@@ -256,8 +256,13 @@ export class UserService {
     return true;
   }
   static async sendAccountActivationEmail(email: string) {
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: email.toLocaleLowerCase() },
+          { username: email.toLocaleLowerCase() },
+        ],
+      },
     });
     if (!user) {
       throw new Error("No se encontró un usuario con ese correo electrónico");
@@ -358,8 +363,10 @@ export class UserService {
     return { message: "Cuenta activada con éxito" };
   }
   static async resendVerificationEmail(email: string) {
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [{ email: email }, { username: email }],
+      },
     });
 
     if (!user) {

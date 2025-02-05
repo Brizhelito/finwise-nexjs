@@ -13,28 +13,43 @@ const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 const refreshSecret = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET);
 
 // Login
-const loginUser = async ({
+ const loginUser = async ({
   emailOrUsername,
   password,
 }: {
   emailOrUsername: string;
   password: string;
 }) => {
+  // Buscar el usuario por correo o nombre de usuario (ya convertido a minúsculas en el modelo)
   const user = await User.findByUsernameOrEmail(emailOrUsername);
-  if (!user) throw new Error("Usuario no encontrado");
+  if (!user) {
+    throw new Error("Usuario no encontrado");
+  }
 
+  // Verificar si la cuenta está activada
+  if (!user.activated) {
+    throw new Error(
+      "Cuenta no activada. Por favor, activa tu cuenta antes de iniciar sesión."
+    );
+  }
+
+  // Comparar la contraseña ingresada con el hash almacenado
   const validPassword = await bcrypt.compare(password, user.password);
-  if (!validPassword) throw new Error("Contraseña incorrecta");
+  if (!validPassword) {
+    throw new Error("Contraseña incorrecta");
+  }
 
-  const response = NextResponse.json(
+  // Crear la sesión del usuario
+  await createSession(user.id);
+
+  // Devolver la respuesta, removiendo el campo de la contraseña
+  return NextResponse.json(
     {
       message: "Inicio de sesión exitoso",
       user: { ...user, password: undefined },
     },
     { status: 200 }
   );
-  await createSession(user.id);
-  return response;
 };
 
 // Registro

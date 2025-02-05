@@ -19,16 +19,23 @@ import {
 import EmailIcon from "@mui/icons-material/Email";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
-const RecoverPassword = () => {
+/**
+ * Componente para reenviar el correo de verificación de la cuenta.
+ * Muestra un formulario similar al de recuperación de contraseña pero con
+ * la funcionalidad de reenviar el email de activación.
+ */
+const ResendVerificationEmail = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  // Valida que el formato del correo sea correcto
   const isValidEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
+  // Maneja el envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -39,8 +46,9 @@ const RecoverPassword = () => {
 
     setLoading(true);
     try {
-      await axios.post("/api/auth/recover-password", { email });
-      toast.success("Instrucciones enviadas correctamente");
+      // Llamada al endpoint que reenvía el correo de verificación
+      await axios.post("/api/auth/resend-verification", { email });
+      toast.success("Correo de verificación reenviado exitosamente");
       setSuccess(true);
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -60,13 +68,19 @@ const RecoverPassword = () => {
     <Container maxWidth="xs" sx={{ mt: 6, mb: 4 }}>
       <Paper elevation={3} sx={{ p: 3, borderRadius: 2, mb: 4 }}>
         <Box sx={{ textAlign: "center", mb: 3 }}>
+          {/* Enlace para volver al login */}
           <Link
             href="/login"
             onClick={(e) => {
               e.preventDefault();
               router.push("/login");
             }}
-            sx={{ display: "inline-flex", alignItems: "center", mb: 1 }}
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              mb: 1,
+              cursor: "pointer",
+            }}
           >
             <ArrowBackIcon sx={{ mr: 1 }} /> Volver al login
           </Link>
@@ -76,19 +90,18 @@ const RecoverPassword = () => {
           </Box>
 
           <Typography variant="h5" gutterBottom>
-            Recuperar Contraseña
+            Reenviar Correo de Verificación
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Ingresa tu correo electrónico y te enviaremos instrucciones para
-            restablecer tu contraseña.
+            Ingresa tu correo electrónico y te enviaremos un nuevo enlace para
+            activar tu cuenta.
           </Typography>
         </Box>
 
         {success ? (
           <Alert severity="success" sx={{ mb: 2 }}>
-            Hemos enviado un correo a <strong>{email}</strong>. Sigue las
-            instrucciones para restablecer tu contraseña. Si no lo ves en tu
-            bandeja principal, revisa la carpeta de spam.
+            Hemos enviado un correo a <strong>{email}</strong>. Revisa tu
+            bandeja de entrada o la carpeta de spam para activarlo.
           </Alert>
         ) : (
           <Box component="form" onSubmit={handleSubmit}>
@@ -106,7 +119,7 @@ const RecoverPassword = () => {
                   autoComplete="email"
                   inputProps={{
                     "aria-label":
-                      "Correo electrónico para recuperación de contraseña",
+                      "Correo electrónico para reenvío de verificación",
                   }}
                 />
               </Grid>
@@ -123,14 +136,14 @@ const RecoverPassword = () => {
                   {loading ? (
                     <CircularProgress size={24} color="inherit" />
                   ) : (
-                    "Enviar Instrucciones"
+                    "Reenviar Correo"
                   )}
                 </Button>
               </Grid>
 
               <Grid item xs={12}>
                 <Alert severity="info" sx={{ mt: 1 }}>
-                  ¿No recibiste el correo? Revisa tu carpeta de spam o intenta
+                  Si no recibes el correo, revisa tu carpeta de spam o intenta
                   enviarlo nuevamente.
                 </Alert>
               </Grid>
@@ -142,4 +155,4 @@ const RecoverPassword = () => {
   );
 };
 
-export default RecoverPassword;
+export default ResendVerificationEmail;

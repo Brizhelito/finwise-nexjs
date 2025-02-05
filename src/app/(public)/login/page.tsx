@@ -12,6 +12,8 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
+import { toast } from "sonner";
+import axios from "axios";
 
 type FormState = {
   email: string;
@@ -21,8 +23,8 @@ type FormState = {
 type FormStatus = {
   loading: boolean;
   error: string | null;
+  needsVerification: boolean;
 };
-
 const Login = () => {
   const { login } = useAuth();
   const router = useRouter();
@@ -35,6 +37,7 @@ const Login = () => {
   const [status, setStatus] = useState<FormStatus>({
     loading: false,
     error: null,
+    needsVerification: false,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,18 +49,33 @@ const Login = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setStatus({ loading: true, error: null });
-
+    setStatus({ loading: true, error: null, needsVerification: false });
     try {
       await login(formData.email, formData.password);
-      router.push("/dashboard");
+      setStatus({ loading: false, error: null, needsVerification: false });
+            router.push("/dashboard");
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Error desconocido";
+      const needsVerification = errorMessage.includes("activa");
       setStatus({
         loading: false,
-        error: error instanceof Error ? error.message : "Error desconocido",
+        error: errorMessage,
+        needsVerification,
       });
+    }
+  };
+  const resendVerificationEmail = async () => {
+    try {
+      setStatus((prev) => ({ ...prev, loading: true }));
+      await axios.post("/api/auth/resend-verification", {
+        email: formData.email,
+      });
+      toast.success("Correo de verificación reenviado exitosamente");
+    } catch {
+      toast.error("Error al reenviar el correo de verificación");
     } finally {
-      setStatus({ loading: false, error: null });
+      setStatus((prev) => ({ ...prev, loading: false }));
     }
   };
 
@@ -100,10 +118,47 @@ const Login = () => {
         >
           Ingresa a tu cuenta y retoma el control de tus finanzas
         </Typography>
-
         {status.error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {status.error}
+          <Alert
+            severity="error"
+            sx={{
+              mb: 3,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center",
+              padding: 2,
+              fontSize: "1rem",
+            }}
+            action={
+              status.needsVerification && (
+                <Button
+                  color="inherit"
+                  size="small"
+                  onClick={resendVerificationEmail}
+                  disabled={status.loading}
+                  sx={{
+                    marginLeft: 2,
+                    fontWeight: "bold",
+                  }}
+                >
+                  {status.loading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    "Reenviar correo"
+                  )}
+                </Button>
+              )
+            }
+          >
+            <Box>
+              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+                Cuenta sin activar.
+              </Typography>
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                ¿Reenviar correo de activación?
+              </Typography>
+            </Box>
           </Alert>
         )}
 

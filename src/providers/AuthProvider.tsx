@@ -9,9 +9,10 @@ import React, {
 import axios, { AxiosError } from "axios";
 import { toast } from "sonner"; // Importar Sonner
 import { useUser } from "@/context/UserContext";
+
+// Definir el contexto de autenticación
 export interface AuthContextProps {
   isAuthenticated: boolean;
-  isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -23,23 +24,30 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // Nuevo estado para manejar la carga
-  const { login: userLogin, logout : userLogout } = useUser();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+    () =>
+      typeof window !== "undefined" &&
+      localStorage.getItem("isAuthenticated") === "true"
+  );
+
+  const { login: userLogin, logout: userLogout } = useUser();
+
   // Verificar si el usuario ya está autenticado al cargar la página
   useEffect(() => {
     const checkAuthStatus = async () => {
-      setIsLoading(true); // Inicia el estado de carga
       try {
         const response = await axios.get("/api/auth/status", {
           withCredentials: true,
         });
         setIsAuthenticated(response.data.isAuthenticated);
+        localStorage.setItem(
+          "isAuthenticated",
+          String(response.data.isAuthenticated)
+        );
       } catch (error) {
         console.error("Error verificando autenticación:", error);
         setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false); // Termina el estado de carga
+        localStorage.removeItem("isAuthenticated");
       }
     };
 
@@ -49,48 +57,49 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   // Login
   const login = async (email: string, password: string) => {
     try {
-      setIsLoading(true); // Inicia el estado de carga
       const response = await axios.post(
         "/api/auth/login",
         { email, password },
-        { withCredentials: true } // Habilita el uso de cookies
+        { withCredentials: true }
       );
+
       setIsAuthenticated(true);
+      localStorage.setItem("isAuthenticated", "true");
       userLogin(response.data.user);
-      toast.success("¡Inicio de sesión exitoso!"); // Muestra notificación de éxito
+
+      toast.success("¡Inicio de sesión exitoso!");
     } catch (error) {
-      console.error("Error al iniciar sesión:", error);
+      let errorMessage = "Error al iniciar sesión";
+      if (error instanceof AxiosError) {
+        errorMessage = error.response?.data?.error || errorMessage;
+      }
+      console.error("Error al iniciar sesión:", errorMessage);
       setIsAuthenticated(false);
-      toast.error(
-        ((error as AxiosError).response?.data as { message: string })
-          ?.message || "Error al iniciar sesión"
-      ); // Muestra notificación de error
-    } finally {
-      setIsLoading(false); // Termina el estado de carga
+      localStorage.removeItem("isAuthenticated");
+      toast.error(errorMessage);
+      throw new Error(errorMessage); // Lanzar el error;
     }
   };
 
   // Logout
   const logout = async () => {
     try {
-      setIsLoading(true); // Inicia el estado de carga
       await axios.post("/api/auth/logout", {}, { withCredentials: true });
       setIsAuthenticated(false);
+      localStorage.removeItem("isAuthenticated");
       userLogout();
-      toast.success("¡Sesión cerrada correctamente!"); // Muestra notificación de éxito
+      toast.success("¡Sesión cerrada correctamente!");
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
       toast.error(
         ((error as AxiosError).response?.data as { message: string })
           ?.message || "Error al cerrar sesión"
-      ); // Muestra notificación de error
-    } finally {
-      setIsLoading(false); // Termina el estado de carga
+      );
     }
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
