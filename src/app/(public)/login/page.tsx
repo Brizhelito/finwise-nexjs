@@ -118,7 +118,7 @@ const Login = () => {
         >
           Ingresa a tu cuenta y retoma el control de tus finanzas
         </Typography>
-        {status.error && (
+        {status.needsVerification && (
           <Alert
             severity="error"
             sx={{
