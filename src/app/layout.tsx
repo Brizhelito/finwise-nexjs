@@ -9,6 +9,13 @@ import theme from "./theme";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { Toaster } from "sonner";
 import { UserProvider } from "@/context/UserContext";
+export const metadata = {
+  title: "Finwise",
+  description: "Finwise - Gestión de Gastos",
+  icons: {
+    icon: "/icons/icon.svg",
+  },
+};
 const Layout = ({ children }: LayoutProps) => {
   return (
     <html lang="en">
