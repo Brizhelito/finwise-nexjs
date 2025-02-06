@@ -143,7 +143,7 @@ export class UserService {
     <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f6f9; color: #333;">
       <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
         <div style="text-align: center; margin-bottom: 20px;">
-          <img src="https://yourdomain.com/logo.png" alt="Logo" style="max-width: 120px;" />
+          <img src="https://finwise-app.vercel.app/icons/icon.svg" alt="Logo" style="max-width: 120px;" />
         </div>
         
         <h2 style="color: #333; font-size: 24px; text-align: center; margin-bottom: 20px;">Recuperar tu Contraseña</h2>
