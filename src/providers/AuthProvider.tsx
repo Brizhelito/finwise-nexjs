@@ -68,16 +68,51 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       userLogin(response.data.user);
 
       toast.success("¡Inicio de sesión exitoso!");
-    } catch (error) {
+    } catch (error: unknown) {
+      // Explicitly type error as unknown initially
       let errorMessage = "Error al iniciar sesión";
+
       if (error instanceof AxiosError) {
-        errorMessage = error.response?.data?.error || errorMessage;
+        // Use instanceof type guard
+        if (!error.response) {
+          errorMessage =
+            "No se pudo conectar al servidor. Por favor, verifica tu conexión a internet.";
+        } else {
+          const statusCode = error.response.status;
+          switch (statusCode) {
+            case 400: // Bad Request - Puede incluir errores de validación o formato incorrecto
+              errorMessage =
+                error.response.data?.error ||
+                "Error en la solicitud. Verifica tus datos.";
+              break;
+            case 401: // Unauthorized - Credenciales incorrectas
+              errorMessage =
+                "Credenciales inválidas. Por favor, verifica tu email y contraseña.";
+              break;
+            case 429: // Too Many Requests - Rate limit
+              errorMessage =
+                error.response.data?.error ||
+                "Has realizado demasiados intentos. Por favor, inténtalo de nuevo más tarde.";
+              break;
+            case 500: // Internal Server Error
+              errorMessage =
+                "Error del servidor al iniciar sesión. Por favor, inténtalo de nuevo más tarde.";
+              break;
+            default: // Otros errores de axios con respuesta
+              errorMessage =
+                error.response.data?.error ||
+                `Error al iniciar sesión (Código de estado: ${statusCode})`;
+          }
+        }
+      } else {
+        errorMessage = "Ocurrió un error inesperado al iniciar sesión.";
       }
-      console.error("Error al iniciar sesión:", errorMessage);
+
+      console.error("Error al iniciar sesión:", errorMessage, error);
       setIsAuthenticated(false);
       localStorage.removeItem("isAuthenticated");
       toast.error(errorMessage);
-      throw new Error(errorMessage); // Lanzar el error;
+      throw new Error(errorMessage); // Lanzar el error para que el componente superior pueda manejarlo si es necesario
     }
   };
 
