@@ -42,15 +42,49 @@ const RecoverPassword = () => {
       await axios.post("/api/auth/recover-password", { email });
       toast.success("Instrucciones enviadas correctamente");
       setSuccess(true);
-    } catch (error) {
+    } catch (error: unknown) {
+      // Explicitly type error as unknown initially
+      let errorMessage = "Error al iniciar sesión";
+
       if (error instanceof AxiosError) {
-        toast.error(error.response?.data?.error || "Error al enviar el correo");
+        // Use instanceof type guard
+        if (!error.response) {
+          errorMessage =
+            "No se pudo conectar al servidor. Por favor, verifica tu conexión a internet.";
+        } else {
+          const statusCode = error.response.status;
+          switch (statusCode) {
+            case 400: // Bad Request - Puede incluir errores de validación o formato incorrecto
+              errorMessage =
+                error.response.data?.error ||
+                "Error en la solicitud. Verifica tus datos.";
+              break;
+            case 401: // Unauthorized - Credenciales incorrectas
+              errorMessage =
+                "Credenciales inválidas. Por favor, verifica tu email y contraseña.";
+              break;
+            case 429: // Too Many Requests - Rate limit
+              errorMessage =
+                error.response.data?.error ||
+                "Has realizado demasiados intentos. Por favor, inténtalo de nuevo más tarde.";
+              break;
+            case 500: // Internal Server Error
+              errorMessage =
+                "Error del servidor al iniciar sesión. Por favor, inténtalo de nuevo más tarde.";
+              break;
+            default: // Otros errores de axios con respuesta
+              errorMessage =
+                error.response.data?.error ||
+                `Error al iniciar sesión (Código de estado: ${statusCode})`;
+          }
+        }
       } else {
-        toast.error(
-          (error as Error).message ||
-            "Error al enviar el correo de verificación"
-        );
+        errorMessage = "Ocurrió un error inesperado al iniciar sesión.";
       }
+
+      console.error("Error al iniciar sesión:", errorMessage, error);
+      localStorage.removeItem("isAuthenticated");
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
