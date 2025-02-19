@@ -26,7 +26,7 @@ export async function middleware(request: NextRequest) {
         // Apply different limit for GET
         await rateLimit({ ip: ip as string, limit: 500, windowMs: 60 * 1000 }); // Higher limit for GET
       } else {
-        await rateLimit({ ip: ip as string, limit: 1, windowMs: 60 * 1000 }); // Existing limit for other methods
+        await rateLimit({ ip: ip as string, limit: 30, windowMs: 60 * 1000 }); // Existing limit for other methods
       }
     } catch {
       const error = "Rate limit exceeded";
