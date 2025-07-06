@@ -26,6 +26,23 @@ export class UserService {
   }) {
     const { username, password, email, first_name, last_name } = data;
 
+    // Verifica si el username o email ya existen
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: username.toLowerCase() },
+          { email: email.toLowerCase() },
+        ],
+      },
+    });
+    if (existingUser) {
+      if (existingUser.username === username.toLowerCase()) {
+        throw new Error("El nombre de usuario ya está en uso");
+      } else {
+        throw new Error("El correo electrónico ya está en uso");
+      }
+    }
+
     try {
       return await prisma.$transaction(async () => {
         // Crea el usuario utilizando el modelo User.

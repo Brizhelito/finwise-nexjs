@@ -34,7 +34,7 @@ const imageDetails = [
 
 const About = () => {
   return (
-    <Container maxWidth="lg" sx={{ py: 8, backgroundColor: "#f8f8f8" }}>
+    <Container maxWidth="lg" sx={{ py: 8}}>
       <Typography
         variant="h2"
         component="h1"

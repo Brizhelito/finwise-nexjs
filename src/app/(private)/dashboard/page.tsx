@@ -184,7 +184,7 @@ import Link from "next/link";
                 ¡Bienvenido a tu Centro Financiero!
               </Typography>
               <Link
-                href="/transactions"
+                href="/transaction"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
               <Button
