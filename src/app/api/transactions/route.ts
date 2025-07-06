@@ -52,7 +52,6 @@ export async function PUT(req: NextRequest) {
   const userId = Number(cookieStore.get("x-user-id")?.value);
   try {
     const data = await req.json();
-    console.log(data);
     const transaction = await Transaction.update(data.id, {
       ...data,
       user_id: userId,

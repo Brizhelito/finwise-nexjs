@@ -138,8 +138,6 @@ export default class Transaction {
   }
 
   static async delete(id: number, userId: number) {
-    console.log(`🔍 Buscando transacción con ID: ${id}`);
-
     const transaction = await prisma.transaction.findUnique({
       where: { id },
     });
@@ -157,17 +155,13 @@ export default class Transaction {
       throw new Error("Unauthorized: Transaction does not belong to user.");
     }
 
-    console.log(`✅ Transacción encontrada: `, transaction);
 
     const amount = new Decimal(transaction.amount);
-    console.log(`💰 Monto de la transacción: ${amount.toString()}`);
 
     try {
       // Iniciar una transacción de Prisma
       const deletedTransaction = await prisma.$transaction(async (prisma) => {
-        console.log(
-          `🔄 Obteniendo el presupuesto asociado al usuario ${userId}`
-        );
+
 
         const budgetId = transaction.budget_id;
         if (!budgetId) {
@@ -177,30 +171,20 @@ export default class Transaction {
           throw new Error("Budget not found.");
         }
 
-        console.log(`📊 Actualizando balance del presupuesto ID: ${budgetId}`);
 
         if (transaction.type === "income") {
-          console.log(
-            `🔄 Revirtiendo ingreso: Restando ${amount.toString()} del balance`
-          );
           await Transaction.updateBudgetBalance(
             budgetId,
             amount,
             "expense"
           );
         } else {
-          console.log(
-            `🔄 Revirtiendo gasto: Sumando ${amount.toString()} al balance`
-          );
+
           await Transaction.updateBudgetBalance(budgetId, amount, "income");
         }
-
-        console.log(`🗑️ Eliminando transacción con ID: ${id}`);
-
         return prisma.transaction.delete({ where: { id } });
       });
 
-      console.log(`✅ Transacción eliminada exitosamente.`);
       return deletedTransaction;
     } catch (error) {
       console.error(`❌ Error al eliminar la transacción:`, error);

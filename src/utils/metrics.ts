@@ -134,7 +134,6 @@ async function getCategoryTrends(
       })
     );
 
-    console.log("categoryTrends:", categoryTrends);
     return categoryTrends;
   } catch (error) {
     console.error("Error en getCategoryTrends:", error);
@@ -253,7 +252,6 @@ async function getIncomeVsExpenses(
     });
 
     // Debug: Mostrar transacciones agrupadas
-    console.log("monthlyTransactions:", monthlyTransactions);
 
     // Obtenemos el total de ingresos y gastos
     const income =
@@ -266,7 +264,6 @@ async function getIncomeVsExpenses(
       ) || 0;
 
     // Debug: Mostrar ingresos y gastos calculados
-    console.log("Income:", income, "Expenses:", expenses);
 
     return { income, expenses };
   } catch (error) {
@@ -299,7 +296,6 @@ async function getSavingsRate(
     });
 
     // Debug: Mostrar transacciones de ahorro
-    console.log("savingTransactions:", savingTransactions);
 
     // Sumamos los depósitos
     const monthlySavings = savingTransactions.reduce(
@@ -310,9 +306,6 @@ async function getSavingsRate(
     const projectedYearlySavings = monthlySavings * 12;
 
     // Debug: Mostrar tasa de ahorro y ahorro anual proyectado
-    console.log("monthlySavings:", monthlySavings);
-    console.log("monthlySavingsRate:", monthlySavingsRate);
-    console.log("projectedYearlySavings:", projectedYearlySavings);
 
     return { monthlySavingsRate, projectedYearlySavings };
   } catch (error) {
@@ -345,22 +338,12 @@ async function getTopExpenseCategories(
       take: 5,
     });
 
-    // Debug: Mostrar grupos de categorías
-    console.log("grouped expense categories:", grouped);
 
-    // Mapeamos para obtener los nombres de las categorías
     const topCategories = await Promise.all(
       grouped.map(async (group) => {
         const categoryDetails = await prisma.category.findUnique({
           where: { id: group.category_id! },
         });
-        // Debug: Mostrar detalle de cada categoría
-        console.log(
-          "categoryDetails for id",
-          group.category_id,
-          ":",
-          categoryDetails
-        );
         return {
           categoryName: categoryDetails?.name || "Uncategorized",
           totalAmount: Number(group._sum.amount),
@@ -368,7 +351,6 @@ async function getTopExpenseCategories(
       })
     );
 
-    console.log("topExpenseCategories:", topCategories);
     return topCategories;
   } catch (error) {
     console.error("Error en getTopExpenseCategories:", error);
@@ -398,8 +380,6 @@ async function getBudgetData(
       where: { user_id: userId },
     });
 
-    // Debug: Mostrar datos del presupuesto del usuario
-    console.log("userBudget:", userBudget);
 
     const budgetRemainingDays = userBudget
       ? differenceInDays(endOfMonthDate, now)
@@ -418,9 +398,6 @@ async function getBudgetData(
         });
       }
     }
-
-    console.log("budgetRemainingDays:", budgetRemainingDays);
-    console.log("budgetAlerts:", budgetAlerts);
 
     return { budgetRemainingDays, budgetAlerts };
   } catch (error) {
@@ -444,8 +421,6 @@ async function getHighestTransaction(
     });
 
     // Debug: Mostrar la transacción con mayor monto
-    console.log("highestTransactionRecord:", record);
-
     return record
       ? {
           amount: Number(record.amount),
@@ -479,9 +454,6 @@ async function getExpenseTrend(
       select: { amount: true, createdAt: true },
     });
 
-    // Debug: Mostrar transacciones de gasto de los últimos 3 meses
-    console.log("expenseTransactions:", transactions);
-
     // Agrupamos los gastos por mes en formato "YYYY-MM"
     const trendMap: { [month: string]: number } = {};
     transactions.forEach((tx) => {
@@ -490,8 +462,6 @@ async function getExpenseTrend(
     });
 
     // Debug: Mostrar mapa de tendencia
-    console.log("trendMap:", trendMap);
-
     // Convertimos el objeto en un arreglo de resultados
     const expenseTrend = Object.entries(trendMap).map(
       ([month, totalExpenses]) => ({
@@ -500,7 +470,6 @@ async function getExpenseTrend(
       })
     );
 
-    console.log("expenseTrend:", expenseTrend);
     return expenseTrend;
   } catch (error) {
     console.error("Error en getExpenseTrend:", error);
@@ -527,7 +496,6 @@ async function getSavingsGoalProgress(userId: number): Promise<
     });
 
     // Debug: Mostrar metas de ahorro
-    console.log("savingsGoals:", goals);
 
     const progress = goals.map((goal) => ({
       goalName: goal.name,
@@ -537,7 +505,6 @@ async function getSavingsGoalProgress(userId: number): Promise<
         (Number(goal.currentAmount) / Number(goal.targetAmount)) * 100,
     }));
 
-    console.log("savingsGoalProgress:", progress);
     return progress;
   } catch (error) {
     console.error("Error en getSavingsGoalProgress:", error);
@@ -558,10 +525,6 @@ export async function getFinancialMetrics(
     const now = new Date();
     const startOfCurrentMonth = startOfMonth(now);
     const endOfCurrentMonth = endOfMonth(now);
-
-    console.log("Fecha actual:", now);
-    console.log("Inicio del mes:", startOfCurrentMonth);
-    console.log("Fin del mes:", endOfCurrentMonth);
 
     // 1. Ingresos vs Gastos
     const { income, expenses } = await getIncomeVsExpenses(
@@ -623,7 +586,6 @@ export async function getFinancialMetrics(
     };
 
     // Debug: Mostrar objeto final de métricas
-    console.log("financialMetrics:", financialMetrics);
 
     return financialMetrics;
   } catch (error) {

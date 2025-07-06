@@ -78,7 +78,6 @@ export async function GET(request: NextRequest) {
 }
 export async function PUT(request: NextRequest) {
   const body = await request.json();
-  console.log(body);
   // Validar campos requeridos
   if (!body.id || !body.amount || !body.type || !body.saving_goal_id) {
     return NextResponse.json(
